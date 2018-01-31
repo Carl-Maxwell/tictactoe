@@ -12,6 +12,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   document.body.appendChild(app.view);
 
+  window.board = [
+    [false, false, false],
+    [false, false, false],
+    [false, false, false]
+  ];
+
   setup_game();
 });
 
@@ -40,42 +46,84 @@ function create_mark(square, x_or_o) {
   mark.y = square.y;
 
   app.stage.addChild(mark);
-
-  return mark;
 }
 
-function play_in_square(square) {
-  // TODO if the space is unoccupied
-  create_mark(square, "o");
-  // TODO check for victory
+function play_in_square(square, gamespace) {
+  if (board[gamespace.x][gamespace.y]) {
+    // space is occupied
+    alert('space is occupied');
+    return;
+  }
+
+  var mark = "x";
+
+  create_mark(square, mark);
+  board[gamespace.x][gamespace.y] = mark;
+
+  is_victory(mark);
+}
+
+function is_victory(mark) {
+  var runs = [
+    [[0, 0], [0, 1], [0, 2]],
+    [[1, 0], [1, 1], [1, 2]],
+    [[2, 0], [2, 1], [2, 2]],
+
+    [[0, 0], [1, 0], [2, 0]],
+    [[0, 1], [1, 1], [2, 1]],
+    [[0, 2], [1, 2], [2, 2]],
+
+    [[0, 0], [1, 1], [2, 2]],
+    [[0, 2], [1, 1], [2, 0]]
+  ];
+
+  for (var i in runs) {
+    var run = runs[i];
+
+    var check_square = function(point) {
+      return board[point[0]][point[1]] == mark;
+    }
+
+    if (run.every(check_square)) {
+      alert(mark + " has achieved victory!");
+      return true;
+    }
+
+    if (board[2][0]) {debugger}
+  }
+
+  return false;
 }
 
 function mousedownEventHandler(e) {
-  // 0 is left mouse button
-  if (e.data.button == 0) {
-    console.log("x: " + e.data.global.x, "y: " + e.data.global.y);
+  var left_mouse_button = 0;
 
+  if (e.data.button == left_mouse_button) {
     var squares = [
-      // left column
+      // top row
       {x: 150, y: 122, width: 123, height: 107},
-      {x: 150, y: 245, width: 123, height: 107},
-      {x: 150, y: 359, width: 123, height: 107},
-      // middle column
       {x: 314, y: 113, width: 123, height: 107},
-      {x: 329, y: 246, width: 123, height: 107},
-      {x: 325, y: 373, width: 123, height: 107},
-      // right column
       {x: 473, y: 125, width: 123, height: 107},
-      {x: 473, y: 248, width: 123, height: 107},
-      {x: 473, y: 245, width: 123, height: 107}
+      // middle row
+      {x: 150, y: 245, width: 123, height: 107},
+      {x: 329, y: 246, width: 123, height: 107},
+      {x: 482, y: 248, width: 123, height: 107},
+      // bottom row
+      {x: 150, y: 359, width: 123, height: 107},
+      {x: 325, y: 373, width: 123, height: 107},
+      {x: 491, y: 386, width: 123, height: 107}
     ];
 
     var point = { x: e.data.global.x, y: e.data.global.y };
+    // console.log("point: ", point);
 
     for (var i in squares) {
       var square = squares[i];
       if (point_in_rect(point, square)) {
-        play_in_square(square);
+        var x = i % 3;
+        var y = (i - x) / 3;
+
+        play_in_square(square, {x: x, y: y});
       }
     }
   }
