@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     [false, false, false]
   ];
 
+  window.turn_player = "x";
+
   setup_game();
 });
 
@@ -55,12 +57,18 @@ function play_in_square(square, gamespace) {
     return;
   }
 
-  var mark = "x";
+  var mark = change_turn();
 
   create_mark(square, mark);
   board[gamespace.x][gamespace.y] = mark;
 
   is_victory(mark);
+}
+
+function change_turn() {
+  turn_player = turn_player == "x" ? "o" : "x";
+
+  return turn_player;
 }
 
 function is_victory(mark) {
@@ -88,8 +96,6 @@ function is_victory(mark) {
       alert(mark + " has achieved victory!");
       return true;
     }
-
-    if (board[2][0]) {debugger}
   }
 
   return false;
